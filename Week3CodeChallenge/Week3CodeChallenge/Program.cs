@@ -10,11 +10,63 @@ namespace Week3CodeChallenge
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(FindNPrimes(6));
+            Console.WriteLine(FindNPrimes(10001));
             EvenFibonacciSequencer(50);
+            LongestCollatzSequence();
             // Keep the console open
             Console.ReadKey();
         }
+        public static void LongestCollatzSequence()
+        {
+            Dictionary<long,long> seqStorage = new Dictionary<long, long>();
+            long longestValue=0;
+            long longestSeqCount=0;
+            // Check all numbers under one million
+            for (long i = 1; i < 1000000; i++)
+            {
+                // Keep track of stats for the current number
+                long currentCount = 0;
+                long n = i;
+                // Loop until the chain has finished
+                while (n != 1)
+                {
+                    long cachedCount = 0;
+                    // Check to see if the sequence from this point is already stored
+                    // Doing this will save steps instead off trying to find a sequence that has already been computed
+                    if (seqStorage.TryGetValue(i, out cachedCount)) 
+                    {
+                        // If a sequence was found in storage, get it's count and just added it to the current count
+                        // instead of recomputing the entire sequence
+                        currentCount += cachedCount;
+                        break;
+                    }
+                    // Since the current value isn't stored we need to compute the next number in the sequence
+                    if ((n & 1) == 0)
+                    {
+                        n = n / 2;
+                    }
+                    else
+                    {
+                        n = (3 * n) + 1;
+                    }
+                    currentCount++;
+                }
+                // Now that the sequence was solved for this number, store it in case it can be used again
+                seqStorage.Add(i, currentCount);
+
+                // Check to see if this sequence is the highest so far
+                if (currentCount > longestSeqCount)
+                {
+                    // Since this count was the longest, update the values to reflect that
+                    longestValue = i;
+                    longestSeqCount = currentCount;
+                }
+            }
+
+            // Print out the number that produces the longest chain
+            Console.WriteLine(longestValue);
+        }
+
         /// <summary>
         /// A Function that adds up each even number in a Fibonacci Sequence until the maxValue
         /// then prints the sum of those numbers to the console
